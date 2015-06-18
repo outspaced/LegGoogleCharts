@@ -77,6 +77,11 @@ class BaseChart implements ChartInterface
 	protected $margins;
 
 	/**
+	 * @var DataSet
+	 */
+	protected $fill;
+	
+	/**
 	 * Constructor
 	 */
 	public function __construct()
@@ -172,6 +177,9 @@ class BaseChart implements ChartInterface
 
 		if ($this->isTransparent()) {
 			$url .= '&chf=bg,s,65432100';
+		} elseif (! $this->fill->isEmpty()) {
+		    
+		    
 		}
 
 		if (! $this->labels->isEmpty()) {
@@ -588,4 +596,23 @@ class BaseChart implements ChartInterface
 	{
 		return $this->margins;
 	}
+	
+	/**
+	 * @param array $fill
+	 * @return BaseChart
+	 */
+	public function setFill(array $fill)
+	{
+		$this->fill = new DataSet($fill);
+
+		return $this;
+	}
+
+	/**
+	 * @return DataSet
+	 */
+	public function getFill()
+	{
+		return $this->fill;
+	}	
 }
