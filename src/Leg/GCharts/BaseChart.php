@@ -175,13 +175,23 @@ class BaseChart implements ChartInterface
 			$url .= '&chco='.implode($colorsSeparator, $this->colors->toArray());
 		}
 
+		// Fill
 		if ($this->isTransparent()) {
 			$url .= '&chf=bg,s,65432100';
 		} elseif (! $this->fill->isEmpty()) {
-		    
-		    
+	        switch($this->fill->get('type')) {
+                case 'chart':
+                    $fill_type = 'c';
+                break;
+                case 'background':
+                default:
+                    $fill_type = 'bg';
+                break;
+			}
+			
+            $url .= '&chf='.$fill_type.',s,'.$this->fill->get('color');
 		}
-
+		
 		if (! $this->labels->isEmpty()) {
 			$url .= '&chl='.implode('|', $this->labels->toArray());
 
@@ -242,7 +252,7 @@ class BaseChart implements ChartInterface
 			$url .= ((float) $margins->get('legend-width')).',';
 			$url .= ((float) $margins->get('legend-height'));
 		}
-
+		
 		return $url;
 	}
 
