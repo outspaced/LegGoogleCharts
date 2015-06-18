@@ -166,7 +166,8 @@ class BaseChart implements ChartInterface
 		$url .= '&chd=t:'.implode('|', $dataSets);
 
 		if (! $this->colors->isEmpty()) {
-			$url .= '&chco='.implode(',', $this->colors->toArray());
+		    $colorsSeparator = ($this->type == 'lc') ? ',' : '|'; 
+			$url .= '&chco='.implode($colorsSeparator, $this->colors->toArray());
 		}
 
 		if ($this->isTransparent()) {
