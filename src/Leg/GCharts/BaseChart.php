@@ -82,7 +82,7 @@ class BaseChart implements ChartInterface
 	protected $fill;
 
 	/**
-	 * @var DataSet
+	 * @var array
 	 */
 	protected $line_fill;
 
@@ -105,6 +105,11 @@ class BaseChart implements ChartInterface
 	 * @var string
 	 */
 	protected $chart_legend_position;
+
+	/**
+	 * @var array
+	 */
+	protected $axis_tick_mark_styles;
 	
 	/**
 	 * Constructor
@@ -220,14 +225,7 @@ class BaseChart implements ChartInterface
 		
 		// Line fill!
 		if ($this->getLineFill()) {
-		    
-		    $lineFills = [];
-		    
-            foreach($this->getLineFill() as $lineFill) {
-                $lineFills[] = implode(',', $lineFill->toArray());
-            }
-		    
-            $url .= '&chm=' . implode('|', $lineFills);
+		    $url .= '&chm=' . $this->convertMultiDimensionalToString($this->getLineFill());
 		}
 		
 		if (! $this->labels->isEmpty()) {
@@ -307,8 +305,36 @@ class BaseChart implements ChartInterface
 			$url .= '&chdlp='.$this->getChartLegendPosition();
 		}	
 		
+		if ($this->getAxisTickMarkStyle()) {
+            $url .= '&chxtc=' . $this->convertMultiDimensionalToString($this->getAxisTickMarkStyle());
+		}
 		
 		return $url;
+	}
+	
+	
+	/**
+	 * Takes a 2-level array and turns it into a string where bottom-level elements are comma-separated, and top
+	 *     level is pipe-separated
+	 *     
+	 * @param  array $values
+	 * @return string
+	 */
+	protected function convertMultiDimensionalToString(array $values)
+	{
+	    $strings = [];
+	    
+	    foreach($values as $value) {
+	        if ($value instanceof DataSet) {
+	            $imploder = $value->toArray();
+	        } else {
+    	        $imploder = $value;
+	        }
+	        
+            $strings[] = implode(',', $imploder);
+        }
+		    
+        return implode('|', $strings);
 	}
 
 	/**
@@ -682,11 +708,7 @@ class BaseChart implements ChartInterface
 	}	
 	
 	/**
-	 * This should probably actually be a multi-dimensional array
-	 * 
-	 * []
-	 * 
-	 * @param array $line_fill
+	 * @param  array $line_fill
 	 * @return BaseChart
 	 */
 	public function setLineFill(array $line_fills)
@@ -746,7 +768,7 @@ class BaseChart implements ChartInterface
 	}	
 	
 	/**
-	 * @param  string $xyz
+	 * @param  string $axis_label_styles
 	 * @return BaseChart
 	 */
 	public function setAxisLabelStyles($axis_label_styles)
@@ -779,5 +801,29 @@ class BaseChart implements ChartInterface
 	public function getChartLegendPosition()
 	{
 		return $this->chart_legend_position;
-	}	
+	}
+	
+	/**
+	 * @param  array $axis_tick_mark_style
+	 * @return BaseChart
+	 */
+	public function setAxisTickMarkStyle(array $axis_tick_mark_styles)
+	{
+	    $this->axis_tick_mark_style = [];
+	    
+	    // @todo better handling for this multi-dimensionality
+		foreach($axis_tick_mark_styles as $axis_tick_mark_style) {
+			$this->axis_tick_mark_style[] = new DataSet($axis_tick_mark_style);
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * @return DataSet
+	 */
+	public function getAxisTickMarkStyle()
+	{
+		return $this->axis_tick_mark_style;
+	}
 }
