@@ -189,10 +189,15 @@ class BaseChart implements ChartInterface
 		if (empty($this->height)) {
 			throw new \InvalidArgumentException('A chart must have a height.', 500);
 		}
-
+		
 		$url = self::BASE_URL.'?cht='.$this->type;
 		$url .= '&chs='.$this->width.'x'.$this->height;
 
+		if ($this->getLineStyle()) {
+			$url .= '&chls=' . $this->convertMultiDimensionalToString($this->getLineStyle());
+		}
+		
+		
 		$dataSets = array();
 
 		foreach ($this->datas->toArray() as $dataSet) {
@@ -225,7 +230,7 @@ class BaseChart implements ChartInterface
 		
 		// Line fill!
 		if ($this->getLineFill()) {
-		    $url .= '&chm=' . $this->convertMultiDimensionalToString($this->getLineFill());
+			$url .= '&chm=' . $this->convertMultiDimensionalToString($this->getLineFill());
 		}
 		
 		if (! $this->labels->isEmpty()) {
@@ -306,35 +311,35 @@ class BaseChart implements ChartInterface
 		}	
 		
 		if ($this->getAxisTickMarkStyle()) {
-            $url .= '&chxtc=' . $this->convertMultiDimensionalToString($this->getAxisTickMarkStyle());
+			$url .= '&chxtc=' . $this->convertMultiDimensionalToString($this->getAxisTickMarkStyle());
 		}
-		
+			
 		return $url;
 	}
 	
 	
 	/**
 	 * Takes a 2-level array and turns it into a string where bottom-level elements are comma-separated, and top
-	 *     level is pipe-separated
-	 *     
+	 *	 level is pipe-separated
+	 *	 
 	 * @param  array $values
 	 * @return string
 	 */
 	protected function convertMultiDimensionalToString(array $values)
 	{
-	    $strings = [];
-	    
-	    foreach($values as $value) {
-	        if ($value instanceof DataSet) {
-	            $imploder = $value->toArray();
-	        } else {
-    	        $imploder = $value;
-	        }
-	        
-            $strings[] = implode(',', $imploder);
-        }
-		    
-        return implode('|', $strings);
+		$strings = [];
+		
+		foreach($values as $value) {
+			if ($value instanceof DataSet) {
+				$imploder = $value->toArray();
+			} else {
+				$imploder = $value;
+			}
+			
+			$strings[] = implode(',', $imploder);
+		}
+			
+		return implode('|', $strings);
 	}
 
 	/**
@@ -713,9 +718,9 @@ class BaseChart implements ChartInterface
 	 */
 	public function setLineFill(array $line_fills)
 	{
-	    $this->line_fill = [];
-	    
-	    // @todo better handling for this multi-dimensionality
+		$this->line_fill = [];
+		
+		// @todo better handling for this multi-dimensionality
 		foreach($line_fills as $line_fill) {
 			$this->line_fill[] = new DataSet($line_fill);
 		}
@@ -809,9 +814,9 @@ class BaseChart implements ChartInterface
 	 */
 	public function setAxisTickMarkStyle(array $axis_tick_mark_styles)
 	{
-	    $this->axis_tick_mark_style = [];
-	    
-	    // @todo better handling for this multi-dimensionality
+		$this->axis_tick_mark_style = [];
+		
+		// @todo better handling for this multi-dimensionality
 		foreach($axis_tick_mark_styles as $axis_tick_mark_style) {
 			$this->axis_tick_mark_style[] = new DataSet($axis_tick_mark_style);
 		}
@@ -820,10 +825,35 @@ class BaseChart implements ChartInterface
 	}
 
 	/**
-	 * @return DataSet
+	 * @return array
 	 */
 	public function getAxisTickMarkStyle()
 	{
 		return $this->axis_tick_mark_style;
 	}
+	
+	/**
+	 * @param  array $line_style
+	 * @return BaseChart
+	 */
+	public function setLineStyle(array $line_styles)
+	{
+		$this->line_style = [];
+		
+		// @todo better handling for this multi-dimensionality
+		foreach($line_styles as $line_style) {
+			$this->line_style[] = new DataSet($line_style);
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getLineStyle()
+	{
+		return $this->line_style;
+	}
+	
 }
