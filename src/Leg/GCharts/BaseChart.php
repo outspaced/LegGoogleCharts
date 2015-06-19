@@ -80,6 +80,31 @@ class BaseChart implements ChartInterface
 	 * @var DataSet
 	 */
 	protected $fill;
+
+	/**
+	 * @var DataSet
+	 */
+	protected $line_fill;
+
+	/**
+	 * @var string
+	 */
+	protected $custom_scaling;
+	
+	/**
+	 * @var string
+	 */
+	protected $visible_axis;
+	
+	/**
+	 * @var string
+	 */
+	protected $axis_label_styles;
+	
+	/**
+	 * @var string
+	 */
+	protected $chart_legend_position;
 	
 	/**
 	 * Constructor
@@ -91,7 +116,8 @@ class BaseChart implements ChartInterface
 		$this->labels_options = new DataSet();
 		$this->colors = new DataSet();
 		$this->title_options = new DataSet();
-
+		$this->fill = new DataSet();
+		
 		$this->margins = new DataSet(array(
 			'top' => null,
 			'bottom' => null,
@@ -171,7 +197,7 @@ class BaseChart implements ChartInterface
 		$url .= '&chd=t:'.implode('|', $dataSets);
 
 		if (! $this->colors->isEmpty()) {
-		    $colorsSeparator = ($this->type == 'lc') ? ',' : '|'; 
+			$colorsSeparator = ($this->type == 'lc') ? ',' : '|'; 
 			$url .= '&chco='.implode($colorsSeparator, $this->colors->toArray());
 		}
 
@@ -179,17 +205,29 @@ class BaseChart implements ChartInterface
 		if ($this->isTransparent()) {
 			$url .= '&chf=bg,s,65432100';
 		} elseif (! $this->fill->isEmpty()) {
-	        switch($this->fill->get('type')) {
-                case 'chart':
-                    $fill_type = 'c';
-                break;
-                case 'background':
-                default:
-                    $fill_type = 'bg';
-                break;
+			switch($this->fill->get('type')) {
+				case 'chart':
+					$fill_type = 'c';
+				break;
+				case 'background':
+				default:
+					$fill_type = 'bg';
+				break;
 			}
 			
-            $url .= '&chf='.$fill_type.',s,'.$this->fill->get('color');
+			$url .= '&chf='.$fill_type.',s,'.$this->fill->get('color');
+		}
+		
+		// Line fill!
+		if ($this->getLineFill()) {
+		    
+		    $lineFills = [];
+		    
+            foreach($this->getLineFill() as $lineFill) {
+                $lineFills[] = implode(',', $lineFill->toArray());
+            }
+		    
+            $url .= '&chm=' . implode('|', $lineFills);
 		}
 		
 		if (! $this->labels->isEmpty()) {
@@ -252,6 +290,23 @@ class BaseChart implements ChartInterface
 			$url .= ((float) $margins->get('legend-width')).',';
 			$url .= ((float) $margins->get('legend-height'));
 		}
+		
+		if ($this->getCustomScaling()) {
+			$url .= '&chds='.$this->getCustomScaling();
+		}	
+	
+		if ($this->getVisibleAxis()) {
+			$url .= '&chxt='.$this->getVisibleAxis();
+		}	
+	
+		if ($this->getAxisLabelStyles()) {
+			$url .= '&chxs='.$this->getAxisLabelStyles();
+		}	
+	
+		if ($this->getChartLegendPosition()) {
+			$url .= '&chdlp='.$this->getChartLegendPosition();
+		}	
+		
 		
 		return $url;
 	}
@@ -624,5 +679,105 @@ class BaseChart implements ChartInterface
 	public function getFill()
 	{
 		return $this->fill;
+	}	
+	
+	/**
+	 * This should probably actually be a multi-dimensional array
+	 * 
+	 * []
+	 * 
+	 * @param array $line_fill
+	 * @return BaseChart
+	 */
+	public function setLineFill(array $line_fills)
+	{
+	    $this->line_fill = [];
+	    
+	    // @todo better handling for this multi-dimensionality
+		foreach($line_fills as $line_fill) {
+			$this->line_fill[] = new DataSet($line_fill);
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * @return DataSet
+	 */
+	public function getLineFill()
+	{
+		return $this->line_fill;
+	}
+	
+	/**
+	 * @param  string $custom_scaling
+	 * @return BaseChart
+	 */
+	public function setCustomScaling($custom_scaling)
+	{
+		$this->custom_scaling = $custom_scaling;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCustomScaling()
+	{
+		return $this->custom_scaling;
+	}	
+	
+	/**
+	 * @param  string $visible_axis
+	 * @return BaseChart
+	 */
+	public function setVisibleAxis($visible_axis)
+	{
+		$this->visible_axis = $visible_axis;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getVisibleAxis()
+	{
+		return $this->visible_axis;
+	}	
+	
+	/**
+	 * @param  string $xyz
+	 * @return BaseChart
+	 */
+	public function setAxisLabelStyles($axis_label_styles)
+	{
+		$this->axis_label_styles = $axis_label_styles;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAxisLabelStyles()
+	{
+		return $this->axis_label_styles;
+	}	
+	
+	/**
+	 * @param  string $chart_legend_position
+	 * @return BaseChart
+	 */
+	public function setChartLegendPosition($chart_legend_position)
+	{
+		$this->chart_legend_position = $chart_legend_position;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getChartLegendPosition()
+	{
+		return $this->chart_legend_position;
 	}	
 }
