@@ -110,6 +110,11 @@ class BaseChart implements ChartInterface
 	 * @var array
 	 */
 	protected $axis_tick_mark_styles;
+
+	/**
+	 * @var array
+	 */
+	protected $custom_axis_label;
 	
 	/**
 	 * Constructor
@@ -190,13 +195,18 @@ class BaseChart implements ChartInterface
 			throw new \InvalidArgumentException('A chart must have a height.', 500);
 		}
 		
-		$url = self::BASE_URL.'?cht='.$this->type;
+		$url = self::BASE_URL.'?';
+		
+		if ($this->getCustomAxisLabel()) {
+			$url .= 'chxl=' . $this->convertMultiDimensionalToString($this->getCustomAxisLabel());
+		}
+		
+		$url .= 'cht='.$this->type;
 		$url .= '&chs='.$this->width.'x'.$this->height;
 
 		if ($this->getLineStyle()) {
 			$url .= '&chls=' . $this->convertMultiDimensionalToString($this->getLineStyle());
 		}
-		
 		
 		$dataSets = array();
 
@@ -313,7 +323,7 @@ class BaseChart implements ChartInterface
 		if ($this->getAxisTickMarkStyle()) {
 			$url .= '&chxtc=' . $this->convertMultiDimensionalToString($this->getAxisTickMarkStyle());
 		}
-			
+
 		return $url;
 	}
 	
@@ -854,6 +864,30 @@ class BaseChart implements ChartInterface
 	public function getLineStyle()
 	{
 		return $this->line_style;
+	}
+
+	/**
+	 * @param  array $custom_axis_label
+	 * @return BaseChart
+	 */
+	public function setCustomAxisLabel(array $custom_axis_labels)
+	{
+		$this->custom_axis_label = [];
+		
+		// @todo better handling for this multi-dimensionality
+		foreach($custom_axis_labels as $custom_axis_label) {
+			$this->custom_axis_label[] = new DataSet($custom_axis_label);
+		}
+		
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getCustomAxisLabel()
+	{
+		return $this->custom_axis_label;
 	}
 	
 }
