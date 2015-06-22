@@ -196,13 +196,12 @@ class BaseChart implements ChartInterface
 		}
 		
 		$url = self::BASE_URL.'?';
-		
-		if ($this->getCustomAxisLabel()) {
-			$url .= 'chxl=' . $this->convertMultiDimensionalToString($this->getCustomAxisLabel());
-		}
-		
 		$url .= 'cht='.$this->type;
 		$url .= '&chs='.$this->width.'x'.$this->height;
+		
+		if ($this->getCustomAxisLabel()) {
+			$url .= '&chxl=' . $this->convertMultiDimensionalToString($this->getCustomAxisLabel());
+		}
 
 		if ($this->getLineStyle()) {
 			$url .= '&chls=' . $this->convertMultiDimensionalToString($this->getLineStyle());
@@ -869,6 +868,9 @@ class BaseChart implements ChartInterface
 	/**
 	 * @param  array $custom_axis_label
 	 * @return BaseChart
+	 * 
+	 * [!!!] Setting a standard label will override a custom axis label
+	 * @see   BaseChart::setLabels
 	 */
 	public function setCustomAxisLabel(array $custom_axis_labels)
 	{
