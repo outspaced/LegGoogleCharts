@@ -207,6 +207,10 @@ class BaseChart implements ChartInterface
 			$url .= '&chls=' . $this->convertMultiDimensionalToString($this->getLineStyle());
 		}
 		
+			if ($this->getAxisTickMarkStyle()) {
+			$url .= '&chxtc=' . $this->convertMultiDimensionalToString($this->getAxisTickMarkStyle());
+		}
+		
 		$dataSets = array();
 
 		foreach ($this->datas->toArray() as $dataSet) {
@@ -319,10 +323,6 @@ class BaseChart implements ChartInterface
 			$url .= '&chdlp='.$this->getChartLegendPosition();
 		}	
 		
-		if ($this->getAxisTickMarkStyle()) {
-			$url .= '&chxtc=' . $this->convertMultiDimensionalToString($this->getAxisTickMarkStyle());
-		}
-
 		return $url;
 	}
 	
